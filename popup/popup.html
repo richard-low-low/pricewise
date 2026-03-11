@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PriceWise</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="pw-header">
+    <div class="pw-header-left">
+      <img src="../icons/icon48.png" alt="PriceWise" class="pw-logo">
+      <h1 class="pw-title">PriceWise</h1>
+    </div>
+    <span class="pw-badge" id="productCount">0</span>
+  </header>
+
+  <!-- Product List -->
+  <main class="pw-main" id="productList">
+    <!-- Products will be rendered here -->
+  </main>
+
+  <!-- Empty State -->
+  <div class="pw-empty" id="emptyState" style="display: none;">
+    <svg class="pw-empty-icon" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      <line x1="8" y1="11" x2="14" y2="11"></line>
+    </svg>
+    <p class="pw-empty-text">No products tracked yet</p>
+    <p class="pw-empty-hint">Browse Amazon to start tracking prices</p>
+  </div>
+
+  <!-- Footer -->
+  <footer class="pw-footer">
+    PriceWise &mdash; Transparent price tracking. No data collection.
+  </footer>
+
+  <script src="../utils/constants.js"></script>
+  <script src="../utils/storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

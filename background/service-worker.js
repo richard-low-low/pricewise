@@ -6,6 +6,16 @@ const PW_ALERTS_KEY = 'pw_alerts';
 const PW_CHECK_INTERVAL = 60; // minutes
 const ALARM_NAME = 'price-check';
 
+// Debug helper: writes to storage so content script can display in DOM panel
+async function _pw_bgDebug(msg) {
+  console.log(`[PriceWise:BG] ${msg}`);
+  try {
+    await chrome.storage.local.set({
+      _pw_bgDebug: `${new Date().toLocaleTimeString('en', { hour12: false })} ${msg}`
+    });
+  } catch { /* ignore */ }
+}
+
 // ─── Installation & Startup ─────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener(() => {

@@ -1,5 +1,8 @@
 // PriceWise Constants
 
+// Set to false before Chrome Web Store submission
+const PW_DEBUG = true;
+
 const PW_STORAGE_PREFIX = 'pw_';
 const PW_HISTORY_PREFIX = 'pw_history_';
 const PW_ALERTS_KEY = 'pw_alerts';

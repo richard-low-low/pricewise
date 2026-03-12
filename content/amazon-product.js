@@ -6,12 +6,46 @@
   let _pw_currentASIN = null;
   let _pw_shadow = null;
 
+  // ---- Debug Panel (DOM-based, readable by Claude in Chrome) ----
+  function _pw_debug(msg) {
+    console.log(`[PriceWise] ${msg}`);
+    if (!PW_DEBUG) return;
+    let el = document.getElementById('pricewise-debug');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'pricewise-debug';
+      el.style.cssText =
+        'position:fixed;bottom:0;right:0;z-index:99999;max-width:380px;' +
+        'background:#1a1a2e;color:#0f0;font:11px/1.4 monospace;padding:6px 8px;' +
+        'border-radius:6px 0 0 0;opacity:0.85;pointer-events:none;' +
+        'white-space:pre-wrap;max-height:200px;overflow:auto;';
+      document.body.appendChild(el);
+    }
+    const time = new Date().toLocaleTimeString('en', { hour12: false });
+    el.textContent = (el.textContent ? el.textContent + '\n' : '') + `[${time}] ${msg}`;
+    const lines = el.textContent.split('\n');
+    if (lines.length > 15) el.textContent = lines.slice(-15).join('\n');
+  }
+
+  // Listen for background debug messages via storage
+  chrome.storage.onChanged.addListener((changes) => {
+    if (changes['_pw_bgDebug']) {
+      const val = changes['_pw_bgDebug'].newValue;
+      if (val) _pw_debug(`BG: ${val}`);
+    }
+  });
+
   /**
    * Main initialization: extract data, save history, render panel.
    */
   async function init() {
+    _pw_debug('init() started');
     const productData = extractProductData();
-    if (!productData) return;
+    if (!productData) {
+      _pw_debug('No product data found (no ASIN or no price)');
+      return;
+    }
+    _pw_debug(`ASIN=${productData.asin} price=${productData.currencySymbol}${productData.price}`);
 
     // Skip if already initialized for this ASIN
     if (_pw_currentASIN === productData.asin) return;
@@ -26,25 +60,33 @@
 
     // Save current price to history
     const history = await savePriceHistory(productData);
+    _pw_debug(`History saved, ${history.prices.length} entries`);
 
     // Find injection point
     const container = findInjectionPoint();
-    if (!container) return;
+    if (!container) {
+      _pw_debug('No injection point found');
+      return;
+    }
+    _pw_debug(`Injection point: ${container.id || container.className}`);
 
     // Create panel
     _pw_shadow = createPricePanel(container);
+    _pw_debug('Panel created');
 
     // Load alert for this product
     const alert = await getAlert(productData.asin);
 
     // Render chart with history
     updatePricePanel(_pw_shadow, history, alert);
+    _pw_debug('Chart rendered' + (alert ? ` (alert: ${productData.currencySymbol}${alert.targetPrice})` : ''));
 
     // Wire up alert button
     setupAlertButton(productData);
 
     // Notify service worker
     notifyServiceWorker(productData);
+    _pw_debug('Init complete');
   }
 
   /**

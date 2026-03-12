@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PriceWise - Promo Tile</title>
+</head>
+<body style="margin: 0; padding: 0; background: #111;">
+<div style="
+  width: 1280px;
+  height: 800px;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+  position: relative;
+">
+  <!-- Subtle background circles for depth -->
+  <div style="position: absolute; top: -120px; right: -80px; width: 400px; height: 400px; border-radius: 50%; background: rgba(255,255,255,0.05);"></div>
+  <div style="position: absolute; bottom: -100px; left: -60px; width: 300px; height: 300px; border-radius: 50%; background: rgba(255,255,255,0.04);"></div>
+
+  <!-- Left side: Text content -->
+  <div style="flex: 1; padding: 80px 60px 80px 100px; z-index: 1;">
+    <!-- Logo / Title -->
+    <div style="margin-bottom: 12px;">
+      <span style="font-size: 48px; font-weight: 800; color: #ffffff; letter-spacing: -0.5px;">PriceWise</span>
+    </div>
+    <div style="margin-bottom: 50px;">
+      <span style="font-size: 24px; font-weight: 300; color: rgba(255,255,255,0.85); letter-spacing: 0.5px;">Amazon Price Tracker</span>
+    </div>
+
+    <!-- Feature bullets -->
+    <div style="display: flex; flex-direction: column; gap: 24px;">
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <polyline points="2,14 6,10 10,12 14,4 18,8" stroke="white" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span style="font-size: 20px; color: rgba(255,255,255,0.95); font-weight: 500;">Price History Charts</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2 L12 8 L18 8 L13 12 L15 18 L10 14 L5 18 L7 12 L2 8 L8 8 Z" stroke="white" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span style="font-size: 20px; color: rgba(255,255,255,0.95); font-weight: 500;">Price Drop Alerts</span>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 16px;">
+        <div style="width: 36px; height: 36px; border-radius: 10px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <rect x="3" y="9" width="14" height="9" rx="2" stroke="white" stroke-width="1.5" fill="none"/>
+            <path d="M6 9 V6 A4 4 0 0 1 14 6 V9" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+            <circle cx="10" cy="13.5" r="1.5" fill="white"/>
+          </svg>
+        </div>
+        <span style="font-size: 20px; color: rgba(255,255,255,0.95); font-weight: 500;">100% Private - No Data Collection</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right side: Mock price chart -->
+  <div style="flex: 0 0 480px; padding: 60px 100px 60px 20px; z-index: 1;">
+    <div style="
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 32px;
+      border: 1px solid rgba(255,255,255,0.15);
+    ">
+      <!-- Chart header -->
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+        <span style="font-size: 15px; color: rgba(255,255,255,0.7); font-weight: 500;">Price History</span>
+        <span style="font-size: 13px; color: rgba(255,255,255,0.5);">Last 30 days</span>
+      </div>
+      <div style="margin-bottom: 24px;">
+        <span style="font-size: 32px; font-weight: 700; color: #4ade80;">$24.99</span>
+        <span style="font-size: 14px; color: #4ade80; margin-left: 8px;">&#9660; 38%</span>
+      </div>
+
+      <!-- SVG Chart -->
+      <svg viewBox="0 0 360 180" style="width: 100%; height: auto;">
+        <!-- Grid lines -->
+        <line x1="0" y1="45" x2="360" y2="45" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <line x1="0" y1="90" x2="360" y2="90" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+        <line x1="0" y1="135" x2="360" y2="135" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+
+        <!-- Price labels -->
+        <text x="355" y="49" fill="rgba(255,255,255,0.3)" font-size="10" text-anchor="end">$40</text>
+        <text x="355" y="94" fill="rgba(255,255,255,0.3)" font-size="10" text-anchor="end">$30</text>
+        <text x="355" y="139" fill="rgba(255,255,255,0.3)" font-size="10" text-anchor="end">$20</text>
+
+        <!-- Alert line (target price) -->
+        <line x1="0" y1="115" x2="340" y2="115" stroke="#fbbf24" stroke-width="1.5" stroke-dasharray="6,4" opacity="0.7"/>
+        <text x="340" y="111" fill="#fbbf24" font-size="9" opacity="0.8">Alert: $25</text>
+
+        <!-- Area fill under the price line -->
+        <defs>
+          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.2)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0)"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,40 L40,38 L80,42 L120,35 L160,50 L200,90 L220,120 L240,140 L260,135 L280,130 L300,125 L320,128 L340,122 L340,180 L0,180 Z" fill="url(#areaGrad)"/>
+
+        <!-- Price line -->
+        <polyline
+          points="0,40 40,38 80,42 120,35 160,50 200,90 220,120 240,140 260,135 280,130 300,125 320,128 340,122"
+          fill="none"
+          stroke="white"
+          stroke-width="2.5"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        />
+
+        <!-- Current price dot -->
+        <circle cx="340" cy="122" r="5" fill="#4ade80" stroke="white" stroke-width="2"/>
+
+        <!-- Highest price dot -->
+        <circle cx="120" cy="35" r="4" fill="rgba(255,255,255,0.6)"/>
+      </svg>
+
+      <!-- Chart footer -->
+      <div style="display: flex; justify-content: space-between; margin-top: 12px;">
+        <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Feb 10</span>
+        <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Feb 20</span>
+        <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Mar 1</span>
+        <span style="font-size: 11px; color: rgba(255,255,255,0.4);">Mar 10</span>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

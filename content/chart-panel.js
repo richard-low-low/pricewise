@@ -152,6 +152,24 @@ function _pw_renderChart(shadow, prices) {
     _pw_chartInstance = null;
   }
 
+  // Show message instead of empty chart when only 1 data point
+  const container = canvas.parentElement;
+  let msg = container.querySelector('.pw-chart-msg');
+  if (prices.length <= 1) {
+    canvas.style.display = 'none';
+    if (!msg) {
+      msg = document.createElement('div');
+      msg.className = 'pw-chart-msg';
+      msg.style.cssText = `display:flex;align-items:center;justify-content:center;height:100%;
+        color:${PW_COLORS.textSecondary};font-size:13px;text-align:center;padding:20px;`;
+      container.appendChild(msg);
+    }
+    msg.textContent = 'Tracking started! Price history will build up as you visit this product over time.';
+    return;
+  }
+  canvas.style.display = '';
+  if (msg) msg.remove();
+
   const labels = prices.map(p => {
     const d = new Date(p.timestamp);
     return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });

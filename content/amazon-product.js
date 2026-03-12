@@ -174,14 +174,16 @@
    * Amazon sometimes updates content without a full page reload.
    */
   function watchForNavigation() {
-    let lastUrl = window.location.href;
+    let lastPathname = window.location.pathname;
 
     // Use MutationObserver to detect DOM changes that indicate navigation
+    // Compare pathname only (ignore query params like ?th=1 that Amazon adds)
     const observer = new MutationObserver(() => {
-      const currentUrl = window.location.href;
-      if (currentUrl !== lastUrl) {
-        lastUrl = currentUrl;
+      const currentPathname = window.location.pathname;
+      if (currentPathname !== lastPathname) {
+        lastPathname = currentPathname;
         _pw_currentASIN = null; // Reset so init() will run again
+        _pw_debug(`Navigation detected: ${currentPathname}`);
         // Delay to let Amazon finish rendering the new page
         setTimeout(() => init(), 1000);
       }

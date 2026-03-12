@@ -56,7 +56,7 @@ async function renderProductList() {
 
     return `
       <div class="pw-card" data-asin="${product.asin}" data-url="${escapeAttr(product.url || '')}">
-        <img class="pw-card-img" src="${escapeAttr(product.image || '')}" alt="" loading="lazy">
+        <img class="pw-card-img" src="${escapeAttr(product.image || '')}" alt="" loading="lazy" onerror="this.style.display='none'">
         <div class="pw-card-info">
           <div class="pw-card-title">${escapeHtml(product.title || 'Untitled')}</div>
           <div class="pw-card-prices">

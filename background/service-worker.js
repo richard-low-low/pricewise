@@ -3,8 +3,10 @@
 
 const PW_HISTORY_PREFIX = 'pw_history_';
 const PW_ALERTS_KEY = 'pw_alerts';
-const PW_CHECK_INTERVAL = 60; // minutes
+const PW_CHECK_INTERVAL = 120; // minutes between price checks
 const ALARM_NAME = 'price-check';
+const PW_FETCH_TIMEOUT = 20000; // ms to wait for content script per product
+const PW_FETCH_DELAY = 5000; // ms between fetching different products
 
 // Debug helper: writes to storage so content script can display in DOM panel
 async function _pw_bgDebug(msg) {
@@ -19,13 +21,13 @@ async function _pw_bgDebug(msg) {
 // ─── Installation & Startup ─────────────────────────────────────────
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('[PriceWise] Extension installed');
+  _pw_bgDebug('Extension installed');
   setupAlarm();
   updateBadge();
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  console.log('[PriceWise] Extension started');
+  _pw_bgDebug('Extension started');
   setupAlarm();
   updateBadge();
 });
@@ -34,28 +36,134 @@ function setupAlarm() {
   chrome.alarms.create(ALARM_NAME, {
     periodInMinutes: PW_CHECK_INTERVAL,
   });
-  console.log(`[PriceWise] Alarm set: every ${PW_CHECK_INTERVAL} minutes`);
+  _pw_bgDebug(`Alarm set: every ${PW_CHECK_INTERVAL} minutes`);
 }
 
 // ─── Alarm Handler ──────────────────────────────────────────────────
 
 chrome.alarms.onAlarm.addListener(async (alarm) => {
   if (alarm.name !== ALARM_NAME) return;
-  console.log('[PriceWise] Running scheduled price check');
-  await checkAllAlerts();
+  _pw_bgDebug('Running scheduled price check');
+  await fetchAndCheckAlerts();
 });
+
+// ─── Background Price Fetching ──────────────────────────────────────
+
+/**
+ * For each product with an active alert, open a background tab
+ * to let the content script grab the latest price, then check alerts.
+ */
+async function fetchAndCheckAlerts() {
+  const alertsResult = await chrome.storage.local.get(PW_ALERTS_KEY);
+  const alerts = alertsResult[PW_ALERTS_KEY] || {};
+  const asins = Object.keys(alerts);
+
+  if (asins.length === 0) {
+    _pw_bgDebug('No alerts configured, skipping fetch');
+    return;
+  }
+
+  _pw_bgDebug(`Fetching prices for ${asins.length} product(s)`);
+
+  // Get stored URLs for each ASIN
+  const historyKeys = asins.map((asin) => PW_HISTORY_PREFIX + asin);
+  const historyResult = await chrome.storage.local.get(historyKeys);
+
+  for (let i = 0; i < asins.length; i++) {
+    const asin = asins[i];
+    const history = historyResult[PW_HISTORY_PREFIX + asin];
+    const product = history?.product || {};
+
+    // Build product URL (prefer stored URL, fallback to amazon.com)
+    const url = product.url || `https://www.amazon.com/dp/${asin}`;
+
+    try {
+      await fetchPriceInBackground(asin, url);
+    } catch (err) {
+      _pw_bgDebug(`Fetch failed for ${asin}: ${err.message}`);
+    }
+
+    // Delay between products to avoid triggering anti-bot
+    if (i < asins.length - 1) {
+      await sleep(PW_FETCH_DELAY);
+    }
+  }
+
+  // Now check alerts with fresh data
+  _pw_bgDebug('Fetch complete, checking alerts');
+  await checkAllAlerts();
+}
+
+/**
+ * Open a background tab for a product, wait for the content script
+ * to send PRODUCT_VISITED message, then close the tab.
+ */
+function fetchPriceInBackground(asin, url) {
+  return new Promise(async (resolve) => {
+    let tabId = null;
+    let resolved = false;
+
+    const cleanup = () => {
+      if (resolved) return;
+      resolved = true;
+      // Remove listener
+      chrome.runtime.onMessage.removeListener(messageListener);
+      // Close background tab
+      if (tabId) {
+        chrome.tabs.remove(tabId).catch(() => {});
+      }
+      resolve();
+    };
+
+    // Listen for the content script's PRODUCT_VISITED message
+    const messageListener = (message, sender) => {
+      if (
+        message.type === 'PRODUCT_VISITED' &&
+        message.asin === asin &&
+        sender.tab?.id === tabId
+      ) {
+        _pw_bgDebug(`Got price for ${asin}: ${message.price}`);
+        cleanup();
+      }
+    };
+
+    chrome.runtime.onMessage.addListener(messageListener);
+
+    // Timeout: close tab if content script doesn't respond in time
+    setTimeout(() => {
+      if (!resolved) {
+        _pw_bgDebug(`Timeout fetching ${asin}`);
+        cleanup();
+      }
+    }, PW_FETCH_TIMEOUT);
+
+    // Open background tab (inactive, won't steal focus)
+    try {
+      const tab = await chrome.tabs.create({
+        url: url,
+        active: false,
+      });
+      tabId = tab.id;
+    } catch (err) {
+      _pw_bgDebug(`Failed to create tab for ${asin}: ${err.message}`);
+      cleanup();
+    }
+  });
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// ─── Alert Checking (uses stored data) ──────────────────────────────
 
 async function checkAllAlerts() {
   const alertsResult = await chrome.storage.local.get(PW_ALERTS_KEY);
   const alerts = alertsResult[PW_ALERTS_KEY] || {};
   const asins = Object.keys(alerts);
 
-  if (asins.length === 0) {
-    console.log('[PriceWise] No alerts configured');
-    return;
-  }
+  if (asins.length === 0) return;
 
-  // Fetch history for all products with alerts
   const historyKeys = asins.map((asin) => PW_HISTORY_PREFIX + asin);
   const historyResult = await chrome.storage.local.get(historyKeys);
 
@@ -88,7 +196,7 @@ function sendPriceAlert(asin, title, currentPrice, targetPrice, symbol, url) {
     priority: 2,
   });
 
-  console.log(`[PriceWise] Alert triggered for ${asin}: ${symbol}${currentPrice} <= ${symbol}${targetPrice}`);
+  _pw_bgDebug(`Alert triggered for ${asin}: ${symbol}${currentPrice} <= ${symbol}${targetPrice}`);
 }
 
 // ─── Notification Click ─────────────────────────────────────────────
@@ -119,6 +227,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.type === 'GET_PRODUCT_COUNT') {
     getProductCount().then((count) => sendResponse({ count }));
+    return true;
+  }
+
+  // Manual trigger for background fetch (useful for testing)
+  if (message.type === 'FETCH_ALL_PRICES') {
+    fetchAndCheckAlerts().then(() => sendResponse({ done: true }));
     return true;
   }
 });
@@ -175,7 +289,6 @@ async function updateBadge() {
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== 'local') return;
 
-  // Check if any tracked product keys changed
   const relevantChange = Object.keys(changes).some(
     (key) => key.startsWith(PW_HISTORY_PREFIX) || key === PW_ALERTS_KEY
   );

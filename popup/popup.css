@@ -244,4 +244,27 @@ body {
   color: #9ca3af;
   border-top: 1px solid #f3f4f6;
   flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.pw-refresh-btn {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 10px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.pw-refresh-btn:hover {
+  background: #1d4ed8;
+}
+
+.pw-refresh-btn:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
 }

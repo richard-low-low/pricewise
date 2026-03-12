@@ -99,6 +99,22 @@ document.getElementById('productList').addEventListener('click', async (e) => {
   }
 });
 
+// Refresh Prices button
+document.getElementById('refreshPrices').addEventListener('click', async (e) => {
+  const btn = e.target;
+  btn.disabled = true;
+  btn.textContent = 'Checking...';
+
+  chrome.runtime.sendMessage({ type: 'FETCH_ALL_PRICES' }, () => {
+    btn.textContent = 'Done!';
+    setTimeout(async () => {
+      btn.disabled = false;
+      btn.textContent = 'Refresh Prices';
+      await renderProductList();
+    }, 2000);
+  });
+});
+
 // Helpers
 function escapeHtml(str) {
   const div = document.createElement('div');
